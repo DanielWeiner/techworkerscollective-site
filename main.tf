@@ -1,174 +1,237 @@
-# Tech Workers' Collective - WordPress on Google Cloud
-# Terraform configuration
-
-terraform {
-  required_version = ">= 1.0.0"
-  required_providers {
-    google = {
-      source  = "hashicorp/google"
-      version = "5.0.0"
-    }
-  }
-}
-
-# Provider configuration
 provider "google" {
-  project = var.project_id
-  region  = var.region
+  project = "techworkerscollective-site"
+  region  = "us-central1"
 }
 
-# Variables
-variable "project_id" {
-  description = "GCP Project ID"
-  type        = string
-  default     = "your-gcp-project-id"
+import {
+  for_each = toset(local.secrets)
+  id       = each.key
+  to       = google_secret_manager_secret.wp_secrets[each.key]
 }
 
-variable "region" {
-  description = "GCP Region"
-  type        = string
-  default     = "us-central1"
+import {
+  id = "projects/techworkerscollective-site/locations/us-central1/services/techworkerscollective"
+  to = google_cloud_run_v2_service.wordpress
+}
+import {
+  id = "projects/techworkerscollective-site/zones/us-central1-f/instances/techworkerscollective-site-db"
+  to = google_compute_instance.db
+}
+import {
+  id = "projects/techworkerscollective-site/zones/us-central1-f/instances/techworkerscollective-site-nfs"
+  to = google_compute_instance.nfs
+}
+import {
+  id = "projects/techworkerscollective-site/global/networks/techworkerscollective-site-vpc"
+  to = google_compute_network.vpc
+}
+import {
+  id = "projects/techworkerscollective-site/regions/us-central1/subnetworks/techworkerscollective-site-subnet"
+  to = google_compute_subnetwork.subnet
 }
 
-variable "database_name" {
-  description = "Cloud SQL Database name"
-  type        = string
-  default     = "wordpress"
+# --- VPC & Networking ---
+
+resource "google_compute_network" "vpc" {
+  name                    = "techworkerscollective-site-vpc"
+  auto_create_subnetworks = false
 }
 
-variable "database_user" {
-  description = "Cloud SQL Database user"
-  type        = string
-  default     = "wordpress_user"
+resource "google_compute_subnetwork" "subnet" {
+  name                     = "techworkerscollective-site-subnet"
+  ip_cidr_range            = "10.0.0.0/26"
+  region                   = "us-central1"
+  network                  = google_compute_network.vpc.id
+  private_ip_google_access = true
 }
 
-variable "database_password" {
-  description = "Cloud SQL Database password"
-  type        = string
-  sensitive   = true
-  default     = ""
+# --- Service Account ---
+
+data "google_service_account" "sa" {
+  account_id = "techworkerscollective-sa"
 }
 
-variable "database_instance_name" {
-  description = "Cloud SQL instance name"
-  type        = string
-  default     = "techworkers-wordpress"
-}
+# --- Compute Instances ---
 
-variable "run_service_id" {
-  description = "Cloud Run service name"
-  type        = string
-  default     = "wordpress"
-}
-
-variable "run_image" {
-  description = "WordPress image URL"
-  type        = string
-  default     = "wordpress:latest"
-}
-
-variable "run_memory_gb" {
-  description = "Cloud Run memory allocation (GB)"
-  type        = number
-  default     = 2
-}
-
-variable "run_cpu" {
-  description = "Cloud Run CPU allocation"
-  type        = string
-  default     = "1"
-}
-
-# Cloud SQL MySQL Database
-resource "google_sql_database" "wordpress" {
-  name     = var.database_name
-  instance = google_sql_database_instance.this.name
-}
-
-# Cloud SQL Database Instance
-resource "google_sql_database_instance" "this" {
-  name             = var.database_instance_name
-  database_version = "MYSQL_8_0"
-  deletion_protection = false
-
-  settings {
-    tier              = "e0"
-    backup_configuration {
-      enabled  = true
-      start_time = "03:00:00"
-    }
-    ip_configuration {
-      ipv4_enabled    = true
-      authorized_networks {
-        name  = "unrestricted"
-        value = "0.0.0.0/0"
-      }
+resource "google_compute_instance" "db" {
+  name         = "techworkerscollective-site-db"
+  machine_type = "e2-micro"
+  zone         = "us-central1-f"
+  key_revocation_action_type = "NONE"
+  allow_stopping_for_update = true
+  boot_disk {
+    initialize_params {
+      image = "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-13-trixie-v20260528"
+      size  = 20
     }
   }
 
-  dependencies = [google_sql_database.this]
+  network_interface {
+    network    = google_compute_network.vpc.name
+    subnetwork = google_compute_subnetwork.subnet.name
+    network_ip = "10.0.0.3"
+
+    access_config {
+      network_tier = "STANDARD"
+    }
+  }
+
+  service_account {
+    email  = data.google_service_account.sa.email
+    scopes = ["cloud-platform"]
+  }
 }
 
-# Cloud Run Service
+resource "google_compute_instance" "nfs" {
+  name         = "techworkerscollective-site-nfs"
+  machine_type = "e2-micro"
+  zone         = "us-central1-f"
+  key_revocation_action_type = "NONE"
+  allow_stopping_for_update = true
+  boot_disk {
+    initialize_params {
+      image = "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-12-bookworm-v20260528"
+      size  = 10
+    }
+  }
+
+  network_interface {
+    network    = google_compute_network.vpc.name
+    subnetwork = google_compute_subnetwork.subnet.name
+    network_ip = "10.0.0.4"
+
+    access_config {
+      network_tier = "STANDARD"
+    }
+  }
+
+  service_account {
+    email  = data.google_service_account.sa.email
+    scopes = ["cloud-platform"]
+  }
+}
+
+# --- Secret Manager Secrets ---
+
+locals {
+  secrets = [
+    "WORDPRESS_AUTH_KEY",
+    "WORDPRESS_AUTH_SALT",
+    "WORDPRESS_DB_NAME",
+    "WORDPRESS_DB_PASSWORD",
+    "WORDPRESS_DB_USER",
+    "WORDPRESS_LOGGED_IN_KEY",
+    "WORDPRESS_LOGGED_IN_SALT",
+    "WORDPRESS_NONCE_KEY",
+    "WORDPRESS_NONCE_SALT",
+    "WORDPRESS_SECURE_AUTH_KEY",
+    "WORDPRESS_SECURE_AUTH_SALT"
+  ]
+}
+
+
+
+resource "google_secret_manager_secret" "wp_secrets" {
+  for_each  = toset(local.secrets)
+  secret_id = each.key
+
+  replication {
+    auto {}
+  }
+}
+
+
+
+# --- Cloud Run v2 Service ---
+
 resource "google_cloud_run_v2_service" "wordpress" {
-  name     = var.run_service_id
-  location = var.region
+  name     = "techworkerscollective"
+  location = "us-central1"
   ingress  = "INGRESS_TRAFFIC_ALL"
+  invoker_iam_disabled  = true
 
   template {
-    spec {
-      containers {
-        image = var.run_image
+    service_account = data.google_service_account.sa.email
+    timeout         = "300s"
+    max_instance_request_concurrency = 80
 
-        resources {
-          limits_cpu    = var.run_cpu
-          limits_memory = "${var.run_memory_gb}Gi"
+    scaling {
+      min_instance_count = 1
+      max_instance_count = 20
+    }
+
+    containers {
+      image = "gcr.io/techworkerscollective-site/wordpress@sha256:202937e35645196f53fed392811127a29cf7bc390ac38862a8fb9186603829ad"
+
+      resources {
+        limits = {
+          cpu    = "1000m"
+          memory = "512Mi"
         }
+      }
 
-        env {
-          name  = "WORDPRESS_DB_HOST"
-          value = google_sql_database_instance.this.connect_details.connection_name
+      ports {
+        container_port = 80
+      }
+
+      env {
+        name  = "WORDPRESS_DB_HOST"
+        value = "10.0.0.3"
+      }
+
+      env {
+        name  = "WORDPRESS_DEBUG"
+        value = "0"
+      }
+
+      # Dynamically map the discovered secret definitions
+      dynamic "env" {
+        for_each = local.secrets
+        content {
+          name = env.value
+          value_source {
+            secret_key_ref {
+              secret  = env.value
+              version = "latest"
+            }
+          }
         }
+      }
 
-        env {
-          name  = "WORDPRESS_DB_USER"
-          value = var.database_user
-        }
+      volume_mounts {
+        name       = "nfs-1"
+        mount_path = "/var/www/html"
+      }
 
-        env {
-          name  = "WORDPRESS_DB_PASSWORD"
-          value = var.database_password
-        }
-
-        env {
-          name  = "WORDPRESS_DB_NAME"
-          value = var.database_name
+      startup_probe {
+        timeout_seconds   = 20
+        period_seconds    = 20
+        failure_threshold = 20
+        tcp_socket {
+          port = 80
         }
       }
     }
 
-    metadata {
-      annotations = {
-        run.googleapis.com/autoscaling-max = "10"
-        run.googleapis.com/autoscaling-min = "1"
+    # Direct VPC egress setup
+    vpc_access {
+      network_interfaces {
+        network    = google_compute_network.vpc.id
+        subnetwork = google_compute_subnetwork.subnet.id
+      }
+      egress = "PRIVATE_RANGES_ONLY"
+    }
+
+    volumes {
+      name = "nfs-1"
+      nfs {
+        server = "10.0.0.4"
+        path   = "/share/html"
       }
     }
   }
 
-  traffic {
-    percent  = 100
-    location = var.region
-  }
-}
 
-# Output values
-output "database_connection_name" {
-  description = "Cloud SQL database connection name"
-  value       = google_sql_database_instance.this.connect_details.connection_name
-  sensitive   = true
-}
-
-output "run_url" {
-  description = "Cloud Run WordPress service URL"
-  value       = google_cloud_run_v2_service.this.status[0].url
+  # Ensure secrets exist before service deployment
+  depends_on = [google_secret_manager_secret.wp_secrets]
 }

@@ -1,0 +1,38 @@
+services:
+  wordpress:
+    ports:
+      - "8080:80"
+    environment:
+      - WORDPRESS_DB_HOST=wordpress-db
+      - WORDPRESS_DB_USER=wordpress
+      - WORDPRESS_DB_PASSWORD=wordpress
+      - WORDPRESS_DB_NAME=wordpress
+    build:
+      context: .
+      dockerfile: Dockerfile
+      tags:
+        - "gcr.io/techworkerscollective-site/wordpress:latest"
+        - "gcr.io/techworkerscollective-site/wordpress:${BUILD_DATE:-latest}"
+    volumes:
+      - ./.wp:/var/www/html
+  wordpress-db:
+    image: mariadb:latest
+    ports:
+      - "3306:3306"
+    environment:
+      - MARIADB_ROOT_PASSWORD=wordpress
+      - MARIADB_DATABASE=wordpress
+      - MARIADB_USER=wordpress
+      - MARIADB_PASSWORD=wordpress
+    volumes:
+      - ./.db:/var/lib/mysql
+
+# For Artifact Registry builds, you'll use the Cloud Build API or gcloud CLI:
+#
+# Example using gcloud CLI:
+# gcloud builds submit . --tag gcr.io/PROJECT_ID/wordpress:latest
+#
+# Example using Cloud Build API:
+# gcloud builds submit --config cloudbuild.yaml
+#
+# The compose file is also useful for local development and testing

@@ -1,107 +1,198 @@
-# Tech Workers' Collective - WordPress on Google Cloud
+# WordPress for Cloud Run
 
-A bare-bones Terraform setup for hosting WordPress on Google Cloud Platform.
-
-## What's Included
-
-- **Cloud SQL MySQL 8.0** - Managed database with automatic backups
-- **Cloud Run** - Serverless environment for WordPress
-- **Environment variables** - Pre-configured database connection details
+Builds a production-ready WordPress image based on the official [WordPress Docker image](https://hub.docker.com/_/wordpress) for deployment on Google Cloud Run with Artifact Registry.
 
 ## Quick Start
 
-### 1. Initialize Terraform
+```bash
+# Replace PROJECT_ID with your GCP project ID
+PROJECT_ID="your-gcp-project-id"
+
+# Build and push to Artifact Registry
+gcloud builds submit . \
+  --tag gcr.io/$PROJECT_ID/wordpress:latest \
+  --tag gcr.io/$PROJECT_ID/wordpress:$(date +%Y%m%d)
+```
+
+## Configuration
+
+### Database Settings
+
+Set the following build arguments in `compose.yaml` or pass them to `gcloud builds submit`:
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `DB_HOST` | MySQL/MariaDB service name | `mysql` |
+| `DB_USER` | Database user | `wordpress` |
+| `DB_PASSWORD` | Database password | `wordpress` (change in production!) |
+| `DB_NAME` | Database name | `wordpress` |
+| `TABLE_PREFIX` | WordPress table prefix | `wp_` |
+
+### Authentication Keys (Optional but Recommended)
+
+Set these environment variables in Cloud Run deployment:
 
 ```bash
-terraform init
+gcloud run deploy wordpress \
+  --image gcr.io/$PROJECT_ID/wordpress:latest \
+  --set-env-vars WORDPRESS_AUTH_KEY=your-auth-key \
+  --set-env-vars WORDPRESS_SECURE_AUTH_KEY=your-secure-auth-key \
+  --set-env-vars WORDPRESS_LOGGED_IN_KEY=your-logged-in-key \
+  --set-env-vars WORDPRESS_NONCE_KEY=your-nonce-key
 ```
 
-### 2. Configure Variables
-
-Edit `variables.tf` or create a `terraform.tfvars` file with your values:
-
-```hcl
-project_id = "your-gcp-project-id"
-region     = "us-central1"
-database_name = "wordpress"
-database_user = "wordpress_user"
-database_password = "your-secure-password"
+Generate secure keys using:
+```bash
+echo '$$rp(32)|$$rp(32)|$$rp(32)|$$rp(32)|$$rp(32)' | base64 -w0
 ```
 
-**Important:** Never commit `terraform.tfvars` or `.env` files to version control.
-
-### 3. Validate Configuration
+## Deployment to Cloud Run
 
 ```bash
-terraform validate
+gcloud run deploy wordpress \
+  --image gcr.io/$PROJECT_ID/wordpress:latest \
+  --platform managed \
+  --region us-central1 \
+  --memory 2Gi \
+  --cpu 2 \
+  --min-instances 1 \
+  --max-instances 10 \
+  --allow-unauthenticated
 ```
 
-### 4. Plan the Deployment
+### Required Environment Variables
+
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `WORDPRESS_DB_HOST` | Database hostname | Yes |
+| `WORDPRESS_DB_USER` | Database user | Yes |
+| `WORDPRESS_DB_PASSWORD` | Database password | Yes |
+| `WORDPRESS_DB_NAME` | Database name | Yes |
+| `WORDPRESS_TABLE_PREFIX` | Table prefix | Optional |
+
+### Example: Cloud Run with Cloud SQL
 
 ```bash
-terraform plan
+# Get Cloud SQL proxy image
+gcloud sql connections create wordpress-proxy --user=YOUR_SA \
+  --database=wordpress --ip-range=0.0.0.0/0
+
+# Deploy with Cloud SQL proxy
+gcloud run deploy wordpress \
+  --image gcr.io/$PROJECT_ID/wordpress:latest \
+  --set-env-vars WORDPRESS_DB_HOST=127.0.0.1 \
+  --set-env-vars WORDPRESS_DB_USER=wordpress \
+  --set-env-vars WORDPRESS_DB_PASSWORD=your-password \
+  --set-env-vars WORDPRESS_DB_NAME=wordpress \
+  --add-cloudsql-instances=PROJECT_ID:REGION:instance_name
 ```
 
-### 5. Deploy (when ready)
+## Production Best Practices
+
+### 1. Use Read-Only Filesystem
+
+For maximum security, run WordPress with a read-only root filesystem:
 
 ```bash
-terraform apply
+gcloud run deploy wordpress \
+  --image gcr.io/$PROJECT_ID/wordpress:latest \
+  --add-volume wp-content/uploads \
+  --volume-size 10Gi \
+  --add-volume-source gcs \
+  --bucket wp-uploads-bucket
 ```
 
-## Configuration Details
+Or use tmpfs mounts via custom container configuration.
 
-### Cloud SQL
-- **Database Version:** MySQL 8.0
-- **Tier:** e0 (Shared-core)
-- **Backups:** Enabled at 3:00 AM UTC
-- **Network:** Currently unrestricted (0.0.0.0/0) - restrict this in production!
+### 2. Regular Rebuilds
 
-### Cloud Run
-- **Memory:** 2GB
-- **CPU:** 1 vCPU
-- **WordPress Version:** Latest (use specific versions for production)
-- **Autoscaling:** 1-10 instances
-
-## Security Checklist
-
-- [ ] Change default passwords
-- [ ] Restrict Cloud SQL authorized networks (remove 0.0.0.0/0)
-- [ ] Use a specific WordPress version instead of `latest`
-- [ ] Enable Cloud SQL IP whitelist
-- [ ] Set up Cloud Run security policies
-- [ ] Enable VPC Access instead of public IP
-
-## Next Steps
-
-1. **Add WordPress Configuration:** Create additional Terraform resources for WordPress configuration files
-2. **Set up SSL:** Configure SSL certificates with Google Cloud Load Balancing or cert-manager
-3. **Add Media Storage:** Set up Cloud Storage bucket for uploads
-4. **Implement CI/CD:** Use Terraform Cloud or GitHub Actions for deployments
-5. **Monitoring:** Set up Cloud Monitoring and Alerting
-
-## Useful Commands
+Rebuild and redeploy at least weekly to get the latest WordPress security updates:
 
 ```bash
-# List resources
-terraform output
-
-# Destroy everything
-terraform destroy
-
-# Show the execution plan
-terraform plan -out=tfplan
-
-# Apply the plan
-terraform apply tfplan
+# Automated rebuild on schedule
+# Add to crontab or use Cloud Build triggers
+gcloud builds submit . --tag gcr.io/$PROJECT_ID/wordpress:latest
 ```
 
-## Resources
+### 3. Health Checks
 
-- [Terraform Google Provider Documentation](https://registry.terraform.io/providers/hashicorp/google/latest/docs)
-- [Cloud SQL for MySQL Documentation](https://cloud.google.com/sql/docs/mysql)
+Add a health check to your Cloud Run deployment:
+
+```bash
+gcloud run deploy wordpress \
+  --image gcr.io/$PROJECT_ID/wordpress:latest \
+  --set-env-vars SERVER_NAME=0.0.0.0 \
+  --set-env-vars PORT=80 \
+  --add-cloudrun-natural-health-check
+```
+
+### 4. SSL/TLS
+
+Cloud Run automatically provides SSL certificates for your custom domain.
+
+## Local Development
+
+### Build Locally
+
+```bash
+docker build -t wordpress:local .
+docker run -p 8080:80 wordpress:local
+```
+
+### Development with Docker Compose
+
+```bash
+docker-compose up -d
+```
+
+## Troubleshooting
+
+### WordPress can't connect to database
+
+- Verify `DB_HOST` matches your MySQL service name
+- Ensure the database already exists (WordPress won't create it)
+- Check that `DB_USER` and `DB_PASSWORD` are correct
+
+### WordPress can't write to uploads directory
+
+- The image doesn't include PHP mail() support - configure SMTP
+- For read-only deployments, ensure uploads are mounted to a writable location
+- Set proper permissions on the uploads directory
+
+### WordPress debug mode is enabled
+
+- Ensure `WORDPRESS_DEBUG=0` (or unset) in production
+- Check for any `WORDPRESS_DEBUG=1` environment variables
+
+### Image is not up to date
+
+- Rebuild the image - WordPress updates are included in new image builds
+- The `latest` tag will always contain the newest WordPress version
+
+## Security Considerations
+
+⚠️ **Important Security Notes from Official WordPress Docker Image**:
+
+1. **No additional PHP extensions**: The image doesn't provide email capabilities or other common PHP extensions. Configure SMTP for email functionality.
+
+2. **Read-only deployments**: For production, run the image read-only with tmpfs mounts for:
+   - `/tmp` (required by WordPress)
+   - `/run` (required by PHP)
+   - `wp-content/uploads` (optional, for uploads)
+
+3. **Regular updates**: Rebuild and redeploy frequently to get security patches. Don't rely on WordPress's automatic updates.
+
+4. **Authentication keys**: Generate and set secure authentication keys to prevent security vulnerabilities.
+
+5. **Debug mode**: Never enable `WORDPRESS_DEBUG=1` in production.
+
+## References
+
+- [Official WordPress Docker Image](https://hub.docker.com/_/wordpress)
 - [Cloud Run Documentation](https://cloud.google.com/run/docs)
-- [WordPress Docker Image](https://hub.docker.com/_/wordpress)
+- [Artifact Registry Documentation](https://cloud.google.com/artifact-registry)
+- [WordPress Security Best Practices](https://wordpress.org/security/)
 
----
+## License
 
-Built for the Tech Workers' Collective
+This project is provided as-is. The WordPress Docker image is covered by the [WordPress license](https://github.com/WordPress/wordpress-develop/blob/trunk/GPL-2.0-or-later).
