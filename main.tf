@@ -161,7 +161,7 @@ resource "google_cloud_run_v2_service" "wordpress" {
     }
 
     containers {
-      image = "gcr.io/techworkerscollective-site/wordpress@sha256:202937e35645196f53fed392811127a29cf7bc390ac38862a8fb9186603829ad"
+      image = "gcr.io/techworkerscollective-site/wordpress@sha256:2b5b560830cc01c5e40e29de7a1896043efdb48e9d4a6b4d73431e43820de872"
 
       resources {
         limits = {
