@@ -168,6 +168,8 @@ resource "google_cloud_run_v2_service" "wordpress" {
           cpu    = "1000m"
           memory = "512Mi"
         }
+
+        cpu_idle = true
       }
 
       ports {
