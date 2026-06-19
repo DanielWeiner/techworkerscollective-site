@@ -305,12 +305,12 @@ resource "google_cloud_run_v2_service" "wordpress" {
   depends_on = [google_secret_manager_secret.wp_secrets]
 }
 
-resource "google_cloud_run_v2_service" "wordpress-dev" {
+resource "google_cloud_run_v2_service" "dev_wordpress" {
   name     = "techworkerscollective-dev"
   location = "us-central1"
   ingress  = "INGRESS_TRAFFIC_ALL"
   invoker_iam_disabled  = true
-
+  
   template {
     service_account = data.google_service_account.sa.email
     timeout         = "300s"
