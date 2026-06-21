@@ -100,6 +100,7 @@ if [[ "${1-}" == apache2* ]] || [ "${1-}" = 'php-fpm' ] || { self="$(basename "$
         echo >&2 "Copying custom WordPress files from /usr/src/wordpress-custom to /var/www/html"
         ls -la /usr/src/wordpress-custom
         cp -a /usr/src/wordpress-custom/. /var/www/html/
+        chown -R "$user:$group" /var/www/html
     fi
 fi
 
