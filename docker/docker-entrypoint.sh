@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
+# copied from https://github.com/docker-library/wordpress/blob/master/docker-entrypoint.sh
+# with a modification at the end to copy custom local code from /usr/src/wordpress-custom to /var/www/html.
+# that code ultimately comes from the src/ directory in the ./docker/ folder.
+
 if [[ "${1-}" == apache2* ]] || [ "${1-}" = 'php-fpm' ] || { self="$(basename "$0")" && [ "$self" = 'docker-ensure-installed.sh' ]; }; then
 	uid="$(id -u)"
 	gid="$(id -g)"
