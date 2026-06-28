@@ -5,8 +5,13 @@ FROM wordpress:7.0.0-php8.3-apache
 
 ENV WORDPRESS_DEBUG=0
 
-COPY wp-config.php /usr/src/wordpress/wp-config.php
-COPY .htaccess /usr/src/wordpress/.htaccess
+RUN mkdir -p /usr/src/wordpress-custom && \
+    chown www-data:www-data /usr/src/wordpress-custom
+
+COPY ./src/ /usr/src/wordpress-custom/
+
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 LABEL maintainer="Daniel Weiner <danielbweiner@gmail.com>"
 LABEL stage="cloudrun"
