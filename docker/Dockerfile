@@ -5,13 +5,19 @@ FROM wordpress:7.0.0-php8.3-apache
 
 ENV WORDPRESS_DEBUG=0
 
-RUN mkdir -p /usr/src/wordpress-custom && \
-    chown www-data:www-data /usr/src/wordpress-custom
+RUN apt-get update && apt-get install -y \
+    unzip \
+    && rm -rf /var/lib/apt/lists/*
 
-COPY ./src/ /usr/src/wordpress-custom/
+RUN mkdir -p /usr/src/wordpress-plugins
+COPY ./plugins/ /usr/src/wordpress-plugins/
+RUN mkdir -p /usr/src/wordpress/wp-content/plugins
 
-COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+RUN cd /usr/src/wordpress/wp-content/plugins && \
+    find /usr/src/wordpress-plugins/ -name '*.zip' -exec unzip -o {} \; && \
+    rm -rf /usr/src/wordpress-plugins
+
+COPY ./src/ /usr/src/wordpress/
 
 LABEL maintainer="Daniel Weiner <danielbweiner@gmail.com>"
 LABEL stage="cloudrun"

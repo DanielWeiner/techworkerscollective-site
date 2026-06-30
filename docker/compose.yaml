@@ -31,6 +31,8 @@ services:
 #
 # Example using gcloud CLI:
 # gcloud builds submit . --tag gcr.io/PROJECT_ID/wordpress:latest
+# deploy a new revision of the service to Cloud Run:
+# gcloud run deploy SERVICE_NAME --region us-central1 --image gcr.io/techworkerscollective-site/wordpress:latest
 #
 # Example using Cloud Build API:
 # gcloud builds submit --config cloudbuild.yaml
