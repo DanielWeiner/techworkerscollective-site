@@ -38,6 +38,19 @@ data "google_service_account" "sa" {
   account_id = "techworkerscollective-sa"
 }
 
+# Cloud Storage for wordpress uploads
+resource "google_storage_bucket" "wordpress_uploads" {
+  name          = "techworkerscollective-site-wordpress-uploads"
+  location      = "US"
+  force_destroy = true
+}
+
+resource "google_storage_bucket" "dev_wordpress_uploads" {
+  name          = "techworkerscollective-site-dev-wordpress-uploads"
+  location      = "US"
+  force_destroy = true
+}
+
 # --- Compute Instances ---
 
 resource "google_compute_instance" "db" {
@@ -86,64 +99,6 @@ resource "google_compute_instance" "dev_db" {
     network    = google_compute_network.dev_vpc.name
     subnetwork = google_compute_subnetwork.dev_subnet.name
     network_ip = "10.0.0.3"
-
-    access_config {
-      network_tier = "STANDARD"
-    }
-  }
-
-  service_account {
-    email  = data.google_service_account.sa.email
-    scopes = ["cloud-platform"]
-  }
-}
-
-resource "google_compute_instance" "nfs" {
-  name         = "techworkerscollective-site-nfs"
-  machine_type = "e2-micro"
-  zone         = "us-central1-f"
-  key_revocation_action_type = "NONE"
-  allow_stopping_for_update = true
-  boot_disk {
-    initialize_params {
-      image = "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-12-bookworm-v20260528"
-      size  = 10
-    }
-  }
-
-  network_interface {
-    network    = google_compute_network.vpc.name
-    subnetwork = google_compute_subnetwork.subnet.name
-    network_ip = "10.0.0.4"
-
-    access_config {
-      network_tier = "STANDARD"
-    }
-  }
-
-  service_account {
-    email  = data.google_service_account.sa.email
-    scopes = ["cloud-platform"]
-  }
-}
-
-resource "google_compute_instance" "dev_nfs" {
-  name         = "techworkerscollective-site-dev-nfs"
-  machine_type = "e2-micro"
-  zone         = "us-central1-f"
-  key_revocation_action_type = "NONE"
-  allow_stopping_for_update = true
-  boot_disk {
-    initialize_params {
-      image = "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-12-bookworm-v20260528"
-      size  = 10
-    }
-  }
-
-  network_interface {
-    network    = google_compute_network.dev_vpc.name
-    subnetwork = google_compute_subnetwork.dev_subnet.name
-    network_ip = "10.0.0.4"
 
     access_config {
       network_tier = "STANDARD"
@@ -228,7 +183,7 @@ resource "google_cloud_run_v2_service" "wordpress" {
     }
 
     containers {
-      image = "gcr.io/techworkerscollective-site/wordpress@sha256:2b5b560830cc01c5e40e29de7a1896043efdb48e9d4a6b4d73431e43820de872"
+      image = "gcr.io/techworkerscollective-site/wordpress:latest"
 
       resources {
         limits = {
@@ -268,8 +223,8 @@ resource "google_cloud_run_v2_service" "wordpress" {
       }
 
       volume_mounts {
-        name       = "nfs-1"
-        mount_path = "/var/www/html"
+        name       = "wordpress-uploads"
+        mount_path = "/var/www/html/wp-content/uploads"
       }
 
       startup_probe {
@@ -292,14 +247,13 @@ resource "google_cloud_run_v2_service" "wordpress" {
     }
 
     volumes {
-      name = "nfs-1"
-      nfs {
-        server = "10.0.0.4"
-        path   = "/share/html"
+      name = "wordpress-uploads"
+      gcs {
+        bucket    = google_storage_bucket.wordpress_uploads.name
+        read_only = false
       }
     }
   }
-
 
   # Ensure secrets exist before service deployment
   depends_on = [google_secret_manager_secret.wp_secrets]
@@ -322,7 +276,7 @@ resource "google_cloud_run_v2_service" "dev_wordpress" {
     }
 
     containers {
-      image = "gcr.io/techworkerscollective-site/wordpress@sha256:2b5b560830cc01c5e40e29de7a1896043efdb48e9d4a6b4d73431e43820de872"
+      image = "gcr.io/techworkerscollective-site/wordpress:latest"
 
       resources {
         limits = {
@@ -362,8 +316,8 @@ resource "google_cloud_run_v2_service" "dev_wordpress" {
       }
 
       volume_mounts {
-        name       = "nfs-1"
-        mount_path = "/var/www/html"
+        name       = "wordpress-uploads"
+        mount_path = "/var/www/html/wp-content/uploads"
       }
 
       startup_probe {
@@ -386,10 +340,10 @@ resource "google_cloud_run_v2_service" "dev_wordpress" {
     }
 
     volumes {
-      name = "nfs-1"
-      nfs {
-        server = "10.0.0.4"
-        path   = "/share/html"
+      name = "wordpress-uploads"
+      gcs {
+        bucket    = google_storage_bucket.dev_wordpress_uploads.name
+        read_only = false
       }
     }
   }

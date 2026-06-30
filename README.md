@@ -4,22 +4,21 @@ Google Cloud setup for the [Tech Workers' Collective website](https://www.techwo
 
 ## Overview
 
-The application runs on Cloud Run based on the base [WordPress Docker image](https://hub.docker.com/_/wordpress). It sits on top of a VPC and connects to two e2-micro instances: one running MariaDB and the serving NFS. All secrets are configured in Secret Manager and provided as environment variables to the 
-WordPress container. The WordPress image is built locally and pushed to Artifact Registry.
+The application runs on Cloud Run based on the base [WordPress Docker image](https://hub.docker.com/_/wordpress). It sits on top of a VPC and connects to an e2-micro instance running MariaDB. All secrets are configured in Secret Manager and provided as environment variables to the WordPress container. A Google Cloud Storage bucket is mounted to the container at /var/www/html/wp-content/uploads for uploaded media. The WordPress image is built locally and pushed to Artifact Registry.
 
 ### Wordpress image
 The WordPress image is built from the official WordPress image. Any custom modifications to the WordPress files can be injected into the image through the `Dockerfile`. The built image is then pushed to Artifact Registry for use by Cloud Run.
 
-Upon first run, the Wordpress container will copy files from /usr/src/wordpress to /var/www/html. Because /var/www/html is mounted as an NFS volume, these files persist across container restarts.
+The WordPress image assumes an immutable filesystem, and all uploaded media is stored in a Google Cloud Storage bucket mounted to the container at /var/www/html/wp-content/uploads. The bucket is configured to allow read/write access from the Cloud Run service. This means that any plugins or themes will need to be committed to the Docker image in order to persist across container restarts.
 
-### Database and NFS
-The database is hosted as a MariaDB instance on an e2-micro VM. The Cloud Run service points to the database via the WORDPRESS_DB_HOST environment variable. The NFS is also hosted on an e2-micro VM and is mounted to the WordPress container as a volume. The NFS server serves `/share/html`, which is mounted to `/var/www/html` in the WordPress container.
+### Database
+The database is hosted as a MariaDB instance on an e2-micro VM. The Cloud Run service points to the database via the WORDPRESS_DB_HOST environment variable.
 
 ## Deploy a new container image
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/DanielWeiner/techworkerscollective-site.git
+  git clone https://github.com/DanielWeiner/techworkerscollective-site.git
   cd techworkerscollective-site
   ```
 2. Build and push the WordPress image:
@@ -28,25 +27,10 @@ The database is hosted as a MariaDB instance on an e2-micro VM. The Cloud Run se
    docker compose build wordpress
    gcloud builds submit . --tag gcr.io/techworkerscollective-site/wordpress:latest
    ```
-3. Update the terraform:
-  ```
-  ...
-  resource resource "google_cloud_run_v2_service" "wordpress" {
-    ...
-    template {
-      ...
-      containers {
-        image = "gcr.io/techworkerscollective-site/wordpress@sha256:<latest-sha256>"
-      }
-    }
-  }
-  ...
-  ```
-4. Deploy the infrastructure:
-  ```bash
-  terraform init
-  terraform apply
-  ```
+3. Deploy a new revision:
+   ```bash
+   gcloud run deploy SERVICE_NAME --region us-central1 --image gcr.io/techworkerscollective-site/wordpress:latest
+   ```
 
 ## Local Development
 For local development, you can use Docker Compose to run the WordPress container and a local MariaDB instance. Files and data are persisted to ./wp and ./db respectively. The WordPress container runs on port 8080.
