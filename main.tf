@@ -271,7 +271,7 @@ resource "google_cloud_run_v2_service" "dev_wordpress" {
     max_instance_request_concurrency = 80
 
     scaling {
-      min_instance_count = 1
+      min_instance_count = 0
       max_instance_count = 20
     }
 
