@@ -1,7 +1,15 @@
+terraform {
+  backend "gcs" {
+    bucket = "techworkerscollective-site-terraform-state"
+    prefix = "dev/infra"
+  }
+}
+
 provider "google" {
   project = "techworkerscollective-site"
   region  = "us-central1"
 }
+
 
 # --- VPC & Networking ---
 
@@ -49,6 +57,22 @@ resource "google_storage_bucket" "dev_wordpress_uploads" {
   name          = "techworkerscollective-site-dev-wordpress-uploads"
   location      = "US"
   force_destroy = true
+}
+
+# --- Terraform State Bucket ---
+
+resource "google_storage_bucket" "terraform_state" {
+  name          = "techworkerscollective-site-terraform-state"
+  location      = "us-central1"
+  force_destroy = true
+
+  uniform_bucket_level_access = true
+}
+
+resource "google_storage_bucket_iam_member" "terraform_state_admin" {
+  bucket = google_storage_bucket.terraform_state.name
+  role   = "roles/storage.admin"
+  member = "serviceAccount:techworkerscollective-sa@techworkerscollective-site.iam.gserviceaccount.com"
 }
 
 # --- Compute Instances ---
