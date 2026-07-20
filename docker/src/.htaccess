@@ -3,6 +3,14 @@
 RewriteEngine On
 RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 RewriteBase /
+
+# Redirect all domains (with/without subdomains) to the same subdomain at techreformcollective.org
+RewriteCond "%{HTTP_HOST}" "!^localhost(:\d+)?$" [NC]
+RewriteCond "%{HTTP_HOST}" "!^127\.0\.0\.1(:\d+)?$" [NC]
+RewriteCond "%{HTTP_HOST}" "!(^|\.)techreformcollective\.org$" [NC]
+RewriteCond "%{HTTP_HOST}" "^(.*\.)?[^.]+\.[^.]+$"
+RewriteRule ".*" "https://%1techreformcollective.org%{REQUEST_URI}" [L,R=301]
+
 RewriteRule ^index\.php$ - [L]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
