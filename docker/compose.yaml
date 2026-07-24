@@ -13,8 +13,6 @@ services:
       tags:
         - "gcr.io/techworkerscollective-site/wordpress:latest"
         - "gcr.io/techworkerscollective-site/wordpress:${BUILD_DATE:-latest}"
-    volumes:
-      - ./.wp:/var/www/html
   wordpress-db:
     image: mariadb:latest
     ports:
