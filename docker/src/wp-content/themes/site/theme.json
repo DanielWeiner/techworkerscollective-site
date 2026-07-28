@@ -1,9 +1,227 @@
 {
     "$schema": "https://schemas.wp.org/trunk/theme.json",
     "version": 3,
-    "settings": {},
-    "styles": {},
+    "settings": {
+        "layout": {
+            "contentSize": "1024px",
+            "wideSize": "80%"
+        },
+        "color": {
+            "palette": [
+                {
+                    "color": "#FFFFFF",
+                    "name": "Base",
+                    "slug": "base"
+                },
+                {
+                    "color": "#1E1A34",
+                    "name": "Contrast",
+                    "slug": "contrast"
+                },
+                {
+                    "color": "#B7B3C4",
+                    "name": "Brand Light Gray",
+                    "slug": "brand-light-gray"
+                },
+                {
+                    "color": "#DDDAE8",
+                    "name": "Brand Bright Purple",
+                    "slug": "brand-bright-purple"
+                }
+            ]
+        },
+        "typography": {
+            "fluid": true,
+            "fontStyle": true,
+            "fontWeight": true,
+            "letterSpacing": true,
+            "lineHeight": true,
+            "textAlign": true,
+            "textColumns": true,
+            "textTransform": true,
+            "textDecoration": true,
+            "dropCap": true,
+            "customFontSize": true,
+            "fontFamilies": [
+                {
+                    "name": "Primary",
+                    "slug": "primary",
+                    "fontFamily": "Corben, cursive",
+                    "fontFace": [
+                        {
+                            "fontFamily": "Corben",
+                            "fontWeight": "400",
+                            "fontStyle": "normal",
+                            "fontStretch": "normal",
+                            "src": [
+                                "file:./assets/fonts/Corben-Regular.ttf"
+                            ]
+                        },
+                        {
+                            "fontFamily": "Corben",
+                            "fontWeight": "700",
+                            "fontStyle": "normal",
+                            "fontStretch": "normal",
+                            "src": [
+                                "file:./assets/fonts/Corben-Bold.ttf"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "Primary Alt",
+                    "slug": "primary-alt",
+                    "fontFamily": "'Instrument Serif', serif",
+                    "fontFace": [
+                        {
+                            "fontFamily": "Instrument Serif",
+                            "fontWeight": "400",
+                            "fontStyle": "normal",
+                            "fontStretch": "normal",
+                            "src": [
+                                "file:./assets/fonts/InstrumentSerif-Regular.ttf"
+                            ]
+                        },
+                        {
+                            "fontFamily": "Instrument Serif",
+                            "fontWeight": "400",
+                            "fontStyle": "italic",
+                            "fontStretch": "normal",
+                            "src": [
+                                "file:./assets/fonts/InstrumentSerif-Italic.ttf"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "Secondary Alt",
+                    "slug": "secondary-alt",
+                    "fontFamily": "'Host Grotesk', sans-serif",
+                    "fontFace": [
+                        {
+                            "fontFamily": "Host Grotesk",
+                            "fontWeight": "300 400 500 600 700 800",
+                            "fontStyle": "normal",
+                            "fontStretch": "normal",
+                            "src": [
+                                "file:./assets/fonts/HostGrotesk-VariableFont_wght.ttf"
+                            ]
+                        },
+                        {
+                            "fontFamily": "Host Grotesk",
+                            "fontWeight": "300 400 500 600 700 800",
+                            "fontStyle": "italic",
+                            "fontStretch": "normal",
+                            "src": [
+                                "file:./assets/fonts/HostGrotesk-Italic-VariableFont_wght.ttf"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "Secondary",
+                    "slug": "secondary",
+                    "fontFamily": "'Instrument Sans', sans-serif",
+                    "fontFace": [
+                        {
+                            "fontFamily": "Instrument Sans",
+                            "fontWeight": "400 500 600 700",
+                            "fontStyle": "normal",
+                            "fontStretch": "normal",
+                            "src": [
+                                "file:./assets/fonts/InstrumentSans-VariableFont_wdth,wght.ttf"
+                            ]
+                        },
+                        {
+                            "fontFamily": "Instrument Sans",
+                            "fontWeight": "400 500 600 700",
+                            "fontStyle": "italic",
+                            "fontStretch": "normal",
+                            "src": [
+                                "file:./assets/fonts/InstrumentSans-Italic-VariableFont_wdth,wght.ttf"
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    "styles": {
+        "typography": {
+            "fontFamily": "var(--wp--preset--font-family--secondary)",
+            "fontWeight": "400"
+        },
+        "elements": {
+            "heading": {
+                "typography": {
+                    "fontFamily": "var(--wp--preset--font-family--primary)",
+                    "fontWeight": "400"
+                }
+            }
+        },
+        "blocks": {
+            "core/heading": {
+                "variations": {
+                    "alt": {
+                        "typography": {
+                            "fontFamily": "var(--wp--preset--font-family--primary-alt)",
+                            "fontWeight": "400",
+                            "letterSpacing": "-4%"
+                        }
+                    },
+                    "sans-serif": {
+                        "typography": {
+                            "fontFamily": "var(--wp--preset--font-family--secondary)",
+                            "fontWeight": "400",
+                            "letterSpacing": "-2%"
+                        }
+                    }
+                }
+            },
+            "core/paragraph": {
+                "variations": {
+                    "alt": {
+                        "typography": {
+                            "fontFamily": "var(--wp--preset--font-family--secondary-alt)",
+                            "fontWeight": "400"
+                        }
+                    },
+                    "alt-serif": {
+                        "typography": {
+                            "fontFamily": "var(--wp--preset--font-family--primary-alt)",
+                            "fontWeight": "400"
+                        }
+                    }
+                }
+            },
+            "core/site-title": {
+                "typography": {
+                    "fontFamily": "var(--wp--preset--font-family--primary)",
+                    "fontWeight": "400",
+                    "fontSize": "var(--wp--preset--font-size--x-large)"
+                }
+            },
+            "core/button":{
+                "color": {
+                    "text": "var(--wp--preset--color--base)",
+                    "background": "var(--wp--preset--color--contrast)"
+                },
+                ":hover": {
+                    "color": {
+                        "text": "var(--wp--preset--color--contrast)",
+                        "background": "var(--wp--preset--color--brand-light-gray)"
+                    }
+                }
+            }
+        }
+    },
     "customTemplates": [],
-    "templateParts": [],
+    "templateParts": [
+        {
+            "name": "logo",
+            "title": "SVG Logo",
+            "area": "uncategorized"
+        }
+    ],
     "patterns": []
 }

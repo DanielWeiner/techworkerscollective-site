@@ -18,3 +18,39 @@ add_action( 'wp_enqueue_scripts', function() {
         wp_get_theme()->get( 'Version' )
     );
 } );
+
+add_action( 'init', 'site_register_block_styles');
+
+function site_register_block_styles() {
+    register_block_style(
+        'core/heading',
+        [
+            'name'  => 'alt',
+            'label' => __( 'Alt', 'site' ),
+        ]
+    );
+
+    register_block_style(
+        'core/heading',
+        [
+            'name'  => 'sans-serif',
+            'label' => __( 'Sans Serif', 'site' ),
+        ]
+    );
+
+    register_block_style(
+        'core/paragraph',
+        [
+            'name'  => 'alt',
+            'label' => __( 'Alt', 'site' ),
+        ]
+    );
+    
+    register_block_style(
+        'core/paragraph',
+        [
+            'name'  => 'alt-serif',
+            'label' => __( 'Alt Serif', 'site' ),
+        ]
+    );
+}

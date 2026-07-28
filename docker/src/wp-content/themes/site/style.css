@@ -6,3 +6,16 @@
  * Description: Child theme of Twenty Twenty-Five. Customizations live here.
  * Text Domain: site-custom-theme
  */
+
+@media (max-width: 781px) {
+    .wp-block-group.is-reverse-stack-mobile {
+        flex-direction: row;
+    }
+}
+
+@media (min-width: 782px) {
+    .wp-block-group.is-reverse-stack-mobile {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
