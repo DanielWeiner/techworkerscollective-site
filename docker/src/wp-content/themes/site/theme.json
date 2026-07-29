@@ -217,6 +217,12 @@
                     }
                 },
                 "variations": {
+                    "default": {
+                        "color": {
+                            "background": "var(--wp--preset--color--base)",
+                            "text": "var(--wp--preset--color--contrast)"
+                        }
+                    },
                     "dark": {
                         "color": {
                             "background": "var(--wp--preset--color--contrast)",
@@ -231,6 +237,12 @@
                     "text": "var(--wp--preset--color--contrast)"
                 },
                 "variations": {
+                    "default": {
+                        "color": {
+                            "background": "var(--wp--preset--color--base)",
+                            "text": "var(--wp--preset--color--contrast)"
+                        }
+                    },
                     "banner": {
                         "spacing": {
                             "padding": {
