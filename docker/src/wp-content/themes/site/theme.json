@@ -4,7 +4,7 @@
     "settings": {
         "layout": {
             "contentSize": "1024px",
-            "wideSize": "80%"
+            "wideSize": "1024px"
         },
         "color": {
             "palette": [
@@ -269,7 +269,13 @@
             },
             "core/post-content": {
                 "spacing": {
-                    "blockGap": "0px"
+                    "blockGap": "0px",
+                    "padding": {
+                        "top": "0px",
+                        "bottom": "0px",
+                        "left": "0px",
+                        "right": "0px"
+                    }
                 }
             },
             "core/site-title": {
