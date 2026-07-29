@@ -20,8 +20,8 @@
                 },
                 {
                     "color": "#B7B3C4",
-                    "name": "Brand Light Gray",
-                    "slug": "brand-light-gray"
+                    "name": "Brand Light Purple",
+                    "slug": "brand-light-purple"
                 },
                 {
                     "color": "#DDDAE8",
@@ -203,13 +203,13 @@
             },
             "core/button":{
                 "color": {
-                    "text": "var(--wp--preset--color--base)",
-                    "background": "var(--wp--preset--color--contrast)"
+                    "text": "var(--wp--preset--color--contrast)",
+                    "background": "var(--wp--preset--color--brand-light-purple)"
                 },
                 ":hover": {
                     "color": {
-                        "text": "var(--wp--preset--color--contrast)",
-                        "background": "var(--wp--preset--color--brand-light-gray)"
+                        "text": "var(--wp--preset--color--base)",
+                        "background": "var(--wp--preset--color--contrast)"
                     }
                 }
             }
