@@ -53,4 +53,28 @@ function site_register_block_styles() {
             'label' => __( 'Alt Serif', 'site' ),
         ]
     );
+
+    register_block_style(
+        'core/columns',
+        [
+            'name'  => 'dark',
+            'label' => __( 'Dark', 'site' ),
+        ]
+    );
+
+    register_block_style(
+        'core/group',
+        [
+            'name'  => 'banner',
+            'label' => __( 'Banner', 'site' ),
+        ]
+    );
+
+    register_block_style(
+        'core/group',
+        [
+            'name'  => 'dark',
+            'label' => __( 'Dark', 'site' ),
+        ]
+    );
 }

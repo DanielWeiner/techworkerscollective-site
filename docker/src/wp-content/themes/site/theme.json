@@ -147,6 +147,9 @@
         }
     },
     "styles": {
+        "color": {
+            "background": "var(--wp--preset--color--contrast)"
+        },
         "typography": {
             "fontFamily": "var(--wp--preset--font-family--secondary)",
             "fontWeight": "400"
@@ -192,6 +195,69 @@
                             "fontWeight": "400"
                         }
                     }
+                }
+            },
+            "core/columns": {
+                "color": {
+                    "background": "var(--wp--preset--color--base)",
+                    "text": "var(--wp--preset--color--contrast)"
+                },
+                "border": {
+                    "radius": "52px",
+                    "color": "var(--wp--preset--color--contrast)",
+                    "width": "2px",
+                    "style": "solid"
+                },
+                "spacing": {
+                    "padding": {
+                        "top": "48px",
+                        "bottom": "48px",
+                        "left": "70px",
+                        "right": "70px"
+                    }
+                },
+                "variations": {
+                    "dark": {
+                        "color": {
+                            "background": "var(--wp--preset--color--contrast)",
+                            "text": "var(--wp--preset--color--base)"
+                        }
+                    }
+                }
+            },
+             "core/group": {
+                "color": {
+                    "background": "var(--wp--preset--color--base)",
+                    "text": "var(--wp--preset--color--contrast)"
+                },
+                "variations": {
+                    "banner": {
+                        "spacing": {
+                            "padding": {
+                                "top": "calc(48px + 20rem)",
+                                "bottom": "48px",
+                                "left": "70px",
+                                "right": "70px"
+                            }
+                        },
+                        "border": {
+                            "radius": "52px",
+                            "color": "var(--wp--preset--color--contrast)",
+                            "width": "2px",
+                            "style": "solid"
+                        }
+                    },
+                    "dark": {
+                        "color": {
+                            "background": "var(--wp--preset--color--contrast)",
+                            "text": "var(--wp--preset--color--base)"
+                        }
+                    }
+                }
+            },
+            "core/post-content": {
+                "spacing": {
+                    "blockGap": "0px"
                 }
             },
             "core/site-title": {
