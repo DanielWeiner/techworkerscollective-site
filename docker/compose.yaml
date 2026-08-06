@@ -7,6 +7,8 @@ services:
       - WORDPRESS_DB_USER=wordpress
       - WORDPRESS_DB_PASSWORD=wordpress
       - WORDPRESS_DB_NAME=wordpress
+      - WORDPRESS_DEBUG=1
+      - WORDPRESS_DEBUG_DISPLAY=1
     build:
       context: .
       dockerfile: Dockerfile
@@ -15,6 +17,7 @@ services:
         - "gcr.io/techworkerscollective-site/wordpress:${BUILD_DATE:-latest}"
     volumes:
       - ./src/wp-content/themes/site:/var/www/html/wp-content/themes/site
+      - ./src/wp-content/plugins/site:/var/www/html/wp-content/plugins/site
   wordpress-db:
     image: mariadb:latest
     ports:

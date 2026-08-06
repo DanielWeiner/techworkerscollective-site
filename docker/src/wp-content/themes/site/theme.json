@@ -3,8 +3,8 @@
     "version": 3,
     "settings": {
         "layout": {
-            "contentSize": "1024px",
-            "wideSize": "1024px"
+            "contentSize": "1200px",
+            "wideSize": "1200px"
         },
         "color": {
             "palette": [
@@ -147,8 +147,15 @@
         }
     },
     "styles": {
+        "spacing": {
+    		"padding": {
+                "left": "0px",
+                "right": "0px"
+            }
+    	},	
         "color": {
-            "background": "var(--wp--preset--color--contrast)"
+            "background": "var(--wp--preset--color--contrast)",
+            "text": "var(--wp--preset--color--base)"
         },
         "typography": {
             "fontFamily": "var(--wp--preset--font-family--secondary)",
@@ -157,7 +164,7 @@
         "elements": {
             "heading": {
                 "typography": {
-                    "fontFamily": "var(--wp--preset--font-family--primary)",
+                    "fontFamily": "var(--wp--preset--font-family--secondary)",
                     "fontWeight": "400"
                 }
             }
@@ -203,17 +210,17 @@
                     "text": "var(--wp--preset--color--contrast)"
                 },
                 "border": {
-                    "radius": "52px",
+                    "radius": "4rem",
                     "color": "var(--wp--preset--color--contrast)",
                     "width": "2px",
                     "style": "solid"
                 },
                 "spacing": {
                     "padding": {
-                        "top": "48px",
-                        "bottom": "48px",
-                        "left": "70px",
-                        "right": "70px"
+                        "top": "2.5rem",
+                        "bottom": "2.5rem",
+                        "left": "4rem",
+                        "right": "4rem"
                     }
                 },
                 "variations": {
@@ -246,14 +253,14 @@
                     "banner": {
                         "spacing": {
                             "padding": {
-                                "top": "calc(48px + 20rem)",
-                                "bottom": "48px",
-                                "left": "70px",
-                                "right": "70px"
+                                "top": "calc(2.5rem + 20rem)",
+                                "bottom": "2.5rem",
+                                "left": "4rem",
+                                "right": "4rem"
                             }
                         },
                         "border": {
-                            "radius": "52px",
+                            "radius": "4rem",
                             "color": "var(--wp--preset--color--contrast)",
                             "width": "2px",
                             "style": "solid"
@@ -280,7 +287,7 @@
             },
             "core/site-title": {
                 "typography": {
-                    "fontFamily": "var(--wp--preset--font-family--primary)",
+                    "fontFamily": "var(--wp--preset--font-family--secondary)",
                     "fontWeight": "400",
                     "fontSize": "var(--wp--preset--font-size--x-large)"
                 }
@@ -294,7 +301,29 @@
                     "color": {
                         "text": "var(--wp--preset--color--base)",
                         "background": "var(--wp--preset--color--contrast)"
+                    },
+                    "border": {
+                        "width": "2px",
+                        "style": "solid",
+                        "color": "var(--wp--preset--color--brand-light-purple)"
                     }
+                }
+            },
+            "jetpack/input": {
+                "typography": {
+                    "fontSize": "medium"
+                },
+                "color": {
+                    "text": "var(--wp--preset--color--base)",
+                    "background": "var(--wp--preset--color--contrast)"
+                },
+                "border": {
+                    "radius": "2rem",
+                    "top": {
+                        "width": "0px"
+                    },
+                    "width": "2px"
+                    
                 }
             }
         }

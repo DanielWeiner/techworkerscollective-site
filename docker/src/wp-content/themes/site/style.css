@@ -19,3 +19,19 @@
         flex-direction: column;
     }
 }
+
+footer.wp-block-template-part {
+    background-color: var(--wp--preset--color--contrast);
+    color: var(--wp--preset--color--base);
+}
+
+:where(.wp-site-blocks) > :last-child {
+    margin-top: 0;
+}
+
+.wp-block-jetpack-input:focus {
+    border-color: var(--wp--preset--color--contrast);
+}
+.wp-block-jetpack-input::placeholder, .wp-block-jetpack-input select:has(option[value=""]:checked) {
+    opacity: 0.5;
+}
