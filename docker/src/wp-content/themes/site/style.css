@@ -32,6 +32,11 @@ footer.wp-block-template-part {
 .wp-block-jetpack-input:focus {
     border-color: var(--wp--preset--color--contrast);
 }
-.wp-block-jetpack-input::placeholder, .wp-block-jetpack-input select:has(option[value=""]:checked) {
+.wp-block-jetpack-input::placeholder {
     opacity: 0.5;
+}
+
+.wp-block-jetpack-input select:has(option[value=""]:checked) {
+    color: rgb(from var(--wp--preset--color--base) r g b / 0.5);
+    outline-color: var(--wp--preset--color--base);
 }
