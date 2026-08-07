@@ -1,5 +1,6 @@
 <?php
-    $size = isset( $attributes['size'] ) ? $attributes['size'] : '1.5rem';
+    $baseSize = isset( $attributes['size'] ) ? $attributes['size'] : '1.5rem';
+	$size = wp_get_typography_font_size_value([ 'size' => $baseSize ]);
 ?>
 <div <?php echo get_block_wrapper_attributes(); ?>>
 	<a href="<?php echo esc_url( home_url( '/' ) ); ?>" style="display: flex; width: fit-content;" class="site-logo-link">
