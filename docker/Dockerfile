@@ -1,7 +1,7 @@
 # Build a production-ready WordPress image for Cloud Run
 # Based on the official WordPress Docker image
 
-FROM wordpress:7.0.2-php8.3-apache
+FROM wordpress:7.0.4-php8.3-apache
 
 ENV WORDPRESS_DEBUG=0
 
