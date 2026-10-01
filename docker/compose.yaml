@@ -18,6 +18,8 @@ services:
     volumes:
       - ./src/wp-content/themes/site:/var/www/html/wp-content/themes/site
       - ./src/wp-content/plugins/site:/var/www/html/wp-content/plugins/site
+    depends_on:
+      - wordpress-db
   wordpress-db:
     image: mariadb:latest
     ports:

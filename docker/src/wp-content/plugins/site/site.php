@@ -7,6 +7,8 @@
  * License: GPL v2 or later
  */
 
+require_once __DIR__ . '/member.php';
+
 function create_block_logo_link_block_init() {
 	wp_register_block_types_from_metadata_collection( __DIR__ . '/build', __DIR__ . '/build/blocks-manifest.php' );
 }
