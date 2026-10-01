@@ -41,8 +41,7 @@ function site_plugin_register_member_post_type() {
     register_post_type( $MEMBER_POST_TYPE, $args );
 }
 
-add_filter( 'postmeta_form_keys', 'site_plugin_add_member_experience_level', 9, 2 );
-
+add_filter( 'postmeta_form_keys', 'site_plugin_add_member_experience_level', 10, 2 );
 function site_plugin_add_member_experience_level( $keys, $post ) {
 	global $MEMBER_POST_TYPE;
 	global $MEMBER_CUSTOM_FIELDS;
