@@ -16,6 +16,7 @@ services:
         - "gcr.io/techworkerscollective-site/wordpress:latest"
         - "gcr.io/techworkerscollective-site/wordpress:${BUILD_DATE:-latest}"
     volumes:
+      - ./src:/var/www/html
       - ./src/wp-content/themes/site:/var/www/html/wp-content/themes/site
       - ./src/wp-content/plugins/site:/var/www/html/wp-content/plugins/site
     depends_on:
