@@ -22,11 +22,3 @@ Thumbs.db
 # Logs
 *.log
 npm-debug.log*
-
-.wp/
-.db/
-docker/src/
-!docker/src/wp-content/themes/site
-!docker/src/wp-content/plugins/site
-!docker/src/.htaccess
-!docker/src/wp-config.php
