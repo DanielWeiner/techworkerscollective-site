@@ -1,3 +1,9 @@
 .db/
 .wp/
 node_modules/
+
+src/
+!src/wp-content/themes/site
+!src/wp-content/plugins/site
+!src/.htaccess
+!src/wp-config.
