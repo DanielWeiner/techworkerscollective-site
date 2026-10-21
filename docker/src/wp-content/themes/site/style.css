@@ -1,0 +1,42 @@
+/*
+ * File: style.css
+ * Theme Name:  Site Custom Theme
+ * Template:    twentytwentyfive
+ * Version:     1.0.0
+ * Description: Child theme of Twenty Twenty-Five. Customizations live here.
+ * Text Domain: site-custom-theme
+ */
+
+@media (max-width: 781px) {
+    .wp-block-group.is-reverse-stack-mobile {
+        flex-direction: row;
+    }
+}
+
+@media (min-width: 782px) {
+    .wp-block-group.is-reverse-stack-mobile {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
+
+footer.wp-block-template-part {
+    background-color: var(--wp--preset--color--contrast);
+    color: var(--wp--preset--color--base);
+}
+
+:where(.wp-site-blocks) > :last-child {
+    margin-top: 0;
+}
+
+.wp-block-jetpack-input:focus {
+    border-color: var(--wp--preset--color--contrast);
+}
+.wp-block-jetpack-input::placeholder {
+    opacity: 0.5;
+}
+
+.wp-block-jetpack-input select:has(option[value=""]:checked) {
+    color: rgb(from var(--wp--preset--color--base) r g b / 0.5);
+    outline-color: var(--wp--preset--color--base);
+}
