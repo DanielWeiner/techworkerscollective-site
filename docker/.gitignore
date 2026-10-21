@@ -1,0 +1,16 @@
+.db/
+node_modules/
+
+src/*
+!src/wp-content
+src/wp-content/*
+!src/wp-content/themes
+src/wp-content/themes/*
+!src/wp-content/themes/site
+
+!src/wp-content/plugins
+src/wp-content/plugins/*
+!src/wp-content/plugins/site
+
+!src/.htaccess
+!src/wp-config.php
