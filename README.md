@@ -1,6 +1,6 @@
-# Tech Workers' Collective website
+# Tech Reform Collective website
 
-Google Cloud setup for the [Tech Workers' Collective website](https://www.techworkerscollective.org).
+Google Cloud setup for the [Tech Reform Collective website](https://www.techreformcollective.org).
 
 ## Overview
 
@@ -18,9 +18,9 @@ The database is hosted as a MariaDB instance on an e2-micro VM. The Cloud Run se
 
 1. Clone the repository:
    ```bash
-  git clone https://github.com/DanielWeiner/techworkerscollective-site.git
-  cd techworkerscollective-site
-  ```
+    git clone https://github.com/DanielWeiner/techworkerscollective-site.git
+    cd techworkerscollective-site
+   ```
 2. Build and push the WordPress image:
    ```bash
    cd docker
